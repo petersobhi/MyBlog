@@ -1,0 +1,40 @@
+{% extends "main.html" %}
+{% block page %}
+
+<div class="row">
+  <div class="col-md-12">
+    <h2 class="text-center">New post</h2>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-10 center-block" style="float: none">
+{% if username_nav %}
+<form method="post">
+  <div class="form-group">
+    <label for="subject">Subject
+    	{% if blog %}
+    		<p style="color:red">Please enter a valid subject name</p>
+    	{% endif %}
+    </label>
+    <input type="text" class="form-control" id="subject" name="subject" value="{{subject}}">
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Blog
+    	{% if subject %}
+    		<p style="color:red">Please enter a valid post</p>
+    	{% endif %}
+    </label>
+    <textarea name="blog" class="form-control" rows="15">{{blog}}</textarea>
+  </div>
+  <button type="submit" class="btn btn-default">Post</button>
+</form>
+{% else %}
+<div class="row">
+  <div class="col-md-12">
+<h3 class="text-center">Please, <a href="/blog/login">login</a> first to submit a new post</h3>
+  </div>
+</div>
+{% endif %}
+</div>
+</div>
+{% endblock %}

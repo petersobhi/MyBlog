@@ -1,0 +1,57 @@
+{% extends "main.html" %}
+{% block page %}
+
+<div class="row">
+			<div class="col-md-12">
+	<h2 class="text-center">Blog</h2>
+</div>
+</div>
+
+{% if posts %}
+{% for post in posts %}
+	<div class="post-box">
+		<div class="row">
+			<div class="col-md-9">
+				<h2><a href="/blog/{{post.key().id()}}">{{post.subject}}</a></h2>
+			</div>
+			<div class="col-md-3">
+				<h5 class="text-right" style="margin-top: 30px">{{ post.date|pretty.date() }}</h5>
+			</div>
+		</div>
+		<div class=row>
+			<div class="col-md-12">
+				<p>
+					 {{post.blog.replace('\n','<br>')|safe}}
+				</p>
+			</div>
+		</div>
+		<div class=row>
+			<div class="col-md-4" style="float:right;">
+				<h4 class="text-right">
+					 authored by <a href="/blog/user/{{post.user.username}}">{{post.user.username}}</a>
+				</h4>
+			</div>
+		</div>
+		<div class=row>
+		<div class="col-md-2">
+		{% set likes_count=post.likes.count() %}
+			<p>{{ likes_count }} 
+			{% if likes_count==0 or likes_count>1 %}
+				likes
+			{% else%}
+				like
+			{% endif %}
+			</p>
+		</div>
+	</div>
+</div>
+{% endfor %}
+{% else %}
+<div class="row">
+			<div class="col-md-12">
+	<h4 class="text-center">no posts yet</h4>
+</div>
+</div>
+{% endif %}
+
+{% endblock %}
