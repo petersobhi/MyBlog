@@ -14,7 +14,9 @@ jinja_env = jinja2.Environment(loader=jinja2.FileSystemLoader(template_dir),
 jinja_env.filters['pretty.date'] = pretty.date
 jinja_env.filters['len'] = len
 
-# database models:
+# database models
+
+
 class User(db.Model):
     username = db.StringProperty(required=True)
     passhash = db.StringProperty(required=True)
@@ -43,10 +45,14 @@ class Like(db.Model):
 secret = "pJh5D?$dDW_um^S;:YQ._::m,-9dCf9<6h{@nw6g"
 
 # create secure cookies values
+
+
 def make_secure_val(val):
     return '%s|%s' % (val, hmac.new(secret, val).hexdigest())
 
 # check cookies values
+
+
 def check_secure_val(secure_val):
     val = secure_val.split('|')[0]
     if secure_val == make_secure_val(val):
@@ -102,16 +108,20 @@ class NewPost(Handler):
 
     def post(self):
         super(NewPost, self).post()
-        subject = self.request.get("subject")
-        blog = self.request.get("blog")
+        if self.user:
+            subject = self.request.get("subject")
+            blog = self.request.get("blog")
 
-        if subject and blog:
-            b = Blog(subject=subject, blog=blog, user=self.user)
-            b.put()
-            id = b.key().id()
-            self.redirect("/blog/" + str(id))
+            if subject and blog:
+                b = Blog(subject=subject, blog=blog, user=self.user)
+                b.put()
+                id = b.key().id()
+                self.redirect("/blog/" + str(id))
+            else:
+                self.render_me("newpost.html", subject=subject, blog=blog)
         else:
-            self.render_me("newpost.html", subject=subject, blog=blog)
+            self.redirect('/blog/login')
+
 
 
 class BlogItem(Handler):
@@ -119,11 +129,7 @@ class BlogItem(Handler):
 
     def blog_liked(self):
         likes = self.blog.likes
-        liked = False
-        for like in likes:
-            if like.username == self.user.username:
-                liked = True
-                break
+        liked = likes.filter('username = ', self.user.username).get()
         return liked
 
     def count_likes(self):
@@ -170,7 +176,7 @@ class BlogItem(Handler):
     def post(self, blog_id):
         super(BlogItem, self).post()
         self.blog = Blog.get_by_id(int(blog_id))
-        if self.user:
+        if self.user and self.blog:
             if self.request.get("actype") == "delete":
                 self.delete()
                 return
@@ -189,8 +195,8 @@ class BlogItem(Handler):
                     c.put()
 
             elif self.request.get("actype") == "like":
-                different_user = self.blog.user.username != self.user.username
-                if not self.blog_liked() and different_user:
+                is_different_user = self.blog.user.username != self.user.username
+                if not self.blog_liked() and is_different_user:
                     l = Like(blog=self.blog,
                              username=self.user.username)
                     l.put()
@@ -211,7 +217,9 @@ class BlogItem(Handler):
                 if new_body:
                     self.edit_comment(comment_id, new_body)
 
-        self.redirect('/blog/'+str(blog_id))
+            self.redirect('/blog/'+str(blog_id))
+        else:
+            self.redirect('/blog/login')
 
 
 class Register(Handler):
