@@ -1,6 +1,7 @@
 # MyBlog
 
 MyBlog is an open blog website
+##### it  can run online through [GAE Servers](https://udacity-nanodegree-159223.appspot.com/blog) or Locally
 
 ### Requirements
 
